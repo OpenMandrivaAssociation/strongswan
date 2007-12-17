@@ -19,7 +19,7 @@ BuildRequires:	libldap-devel
 BuildRequires:	libcurl-devel
 BuildRequires:	opensc-devel
 Requires:	ipsec-tools
-PreReq:		rpm-helper
+Requires(post,preun):	rpm-helper
 
 %description 
 FreeS/WAN is a free implementation of IPSEC & IKE for Linux.  IPSEC is 
