@@ -88,7 +88,7 @@ make \
     INC_MANDIR=share/man \
     FINALLIBEXECDIR=%{_libdir}/ipsec \
     FINALLIBDIR=%{_libdir}/ipsec \
-    FINALEXAMPLECONFDIR=%{_docdir}/%{name}-%{version} \
+    FINALEXAMPLECONFDIR=%{_docdir}/%{name} \
     CONFDIR="%{buildroot}"%{_sysconfdir}/freeswan \
     DESTDIR="%{buildroot}" \
     install
