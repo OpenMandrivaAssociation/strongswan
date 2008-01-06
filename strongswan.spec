@@ -1,6 +1,6 @@
 %define name	strongswan
-%define version 2.8.3
-%define release %mkrel 2
+%define version 4.1.10
+%define release %mkrel 1
 
 %define source_name freeswan
 
@@ -13,6 +13,7 @@ URL:		http://www.strongswan.org/
 Source0:	%{name}-%{version}.tar.bz2
 Source1:	freeswan.init
 Patch0:		strongswan-2.8.3-libdir.patch
+Patch1:         %{name}_modprobe_syslog.dif
 Group:		System/Servers
 BuildRequires:	libgmp-devel
 BuildRequires:	libldap-devel
@@ -21,12 +22,14 @@ BuildRequires:	opensc-devel
 Requires:	ipsec-tools
 Requires(post,preun):	rpm-helper
 
-%description 
-FreeS/WAN is a free implementation of IPSEC & IKE for Linux.  IPSEC is 
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
+
+%description
+FreeS/WAN is a free implementation of IPSEC & IKE for Linux.  IPSEC is
 the Internet Protocol Security and uses strong cryptography to provide
 both authentication and encryption services.  These services allow you
 to build secure tunnels through untrusted networks.  Everything passing
-through the untrusted net is encrypted by the ipsec gateway machine and 
+through the untrusted net is encrypted by the ipsec gateway machine and
 decrypted by the gateway at the other end of the tunnel.  The resulting
 tunnel is a virtual private network or VPN.
 
@@ -34,47 +37,31 @@ This package contains the daemons and userland tools for setting up
 FreeS/WAN on a freeswan enabled kernel.
 
 %prep
-
 %setup -q -n %{name}-%{version}
-%patch0 -p1 -b .libdir
-
-# enable LDAP v3 support
-perl -pi -e "s,#LDAP_VERSION=3,LDAP_VERSION=3,g" %{_builddir}/%{name}-%{version}/programs/pluto/Makefile
-
-# enable smartcard support
-perl -pi -e "s,#SMARTCARD=1,SMARTCARD=1,g" %{_builddir}/%{name}-%{version}/programs/pluto/Makefile
-
-# enable OCSP and dynamic CRL fetching using HTTP or FTP
-perl -pi -e "s,#LIBCURL=1,LIBCURL=1,g" %{_builddir}/%{name}-%{version}/programs/pluto/Makefile
-
-# change some default settings
-find . -type f | xargs perl -pi -e "s,/usr/local/man,%{_mandir},g"
-find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
-find . -type f | xargs perl -pi -e "s,/libexec/ipsec,/lib/ipsec,g"
-find . -type f | xargs perl -pi -e "s,/etc/ipsec.conf,/etc/freeswan/ipsec.conf,g"
-find . -type f | xargs perl -pi -e "s,/etc/ipsec.secrets,/etc/freeswan/ipsec.secrets,g"
-find . -type f | xargs perl -pi -e "s,/etc/ipsec.d,/etc/freeswan/ipsec.d,g"
-
-#fix the ipsec_aes commands
-find . -type f | xargs perl -pi -e "s,modprobe ipsec_aes,modprobe aes,g"
-find . -type f | xargs perl -pi -e "s,rmmod ipsec_aes,rmmod aes,g"
+%patch1 -p0
 
 %build
+#autoreconf
+%configure2_5x \
+        --enable-smartcard --with-default-pkcs11=%{_libdir}/opensc-pkcs11.so \
+        --enable-cisco-quirks   \
+        --enable-http           \
+        --enable-ldap           \
+        --enable-xml            \
+        --enable-p2p
+#       --enable-dbus
+#       --enable-manager
 
-%serverbuild
-
-perl -p -i -e "s|INC_USRLOCAL=/usr/local|INC_USRLOCAL=%{_prefix}|" Makefile.inc
-perl -p -i -e "s|INC_USRLOCAL=/libexec/ipsec/|INC_USRLOCAL=%{_lib}/ipsec/|" Makefile.inc
-
-%make \
-    OPT_FLAGS="%{optflags}" \
-    CONFDIR=%{_sysconfdir}/freeswan/ \
-    FINALLIBEXECDIR=%{_libdir}/ipsec \
-    FINALLIBDIR=%{_libdir}/ipsec \
-    FINALCONFDIR=%{_sysconfdir}/freeswan \
-    FINALCONFFILE=%{_sysconfdir}/ipsec.conf \
-    INC_USRLOCAL=%{_prefix} \
-    INC_MANDIR=share/man programs 
+#%make \
+#    OPT_FLAGS="%{optflags}" \
+#    CONFDIR=%{_sysconfdir}/freeswan/ \
+#    FINALLIBEXECDIR=%{_libdir}/ipsec \
+#    FINALLIBDIR=%{_libdir}/ipsec \
+#    FINALCONFDIR=%{_sysconfdir}/freeswan \
+#    FINALCONFFILE=%{_sysconfdir}/ipsec.conf \
+#    INC_USRLOCAL=%{_prefix} \
+#    INC_MANDIR=share/man
+%make
 
 %install
 rm -rf %{buildroot}
@@ -83,27 +70,31 @@ install -d %{buildroot}%{_sysconfdir}/%{source_name}/ipsec.d/{cacerts,crls,priva
 install -d %{buildroot}%{_initrddir}
 install -d %{buildroot}/var/run/pluto
 
-make \
-    INC_USRLOCAL=%{_prefix} \
-    INC_MANDIR=share/man \
-    FINALLIBEXECDIR=%{_libdir}/ipsec \
-    FINALLIBDIR=%{_libdir}/ipsec \
-    FINALEXAMPLECONFDIR=%{_docdir}/%{name} \
-    CONFDIR="%{buildroot}"%{_sysconfdir}/freeswan \
-    DESTDIR="%{buildroot}" \
-    install
+#%make \
+#    INC_USRLOCAL=%{_prefix} \
+#    INC_MANDIR=share/man \
+#    FINALLIBEXECDIR=%{_libdir}/ipsec \
+#    FINALLIBDIR=%{_libdir}/ipsec \
+#    FINALEXAMPLECONFDIR=%{_docdir}/%{name} \
+#    CONFDIR="%{buildroot}"%{_sysconfdir}/freeswan \
+#    DESTDIR="%{buildroot}" \
+#    install
+
+%makeinstall_std
 
 # (fg) File is copied over here
 install -m0755 %{SOURCE1} %{buildroot}%{_initrddir}/ipsec
 
-mv %{buildroot}%{_sysconfdir}/ipsec.d/{examples,policies} %{buildroot}%{_sysconfdir}/%{source_name}/ipsec.d/
+mv %{buildroot}/usr/local%{_sysconfdir}/ipsec.conf %{buildroot}%{_sysconfdir}/%{source_name}/
 
-find . -name ".cvsignore" | xargs rm -rf
+rm -f %{buildroot]%{_libdir}/libstrongswan.{so,a,la}
+find  %{buildroot}%{_libdir}/ipsec -name "*.a" -o -name "*.la" | xargs -r rm -f
+
 
 %post
 is=%{_sysconfdir}/freeswan/ipsec.secrets; if [ ! -f $is ]; then ipsec newhostkey --output $is && chmod 400 $is; else ipsec newhostkey --output $is.rpmnew && chmod 400 $is.rpmnew; fi
 
-%_post_service ipsec 
+%_post_service ipsec
 
 %preun
 %_preun_service ipsec
@@ -114,7 +105,7 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,755)
 %doc CHANGES CREDITS README
-%docdir %{_docdir}/%{name}-%{version}
+%{_docdir}/%{name}-%{version}/*
 %attr(700,root,root) %dir %{_sysconfdir}/%{source_name}
 %attr(700,root,root) %dir %{_sysconfdir}/%{source_name}/ipsec.d/
 %attr(700,root,root) %dir %{_sysconfdir}/%{source_name}/ipsec.d/acerts
@@ -130,9 +121,6 @@ rm -rf %{buildroot}
 %config(noreplace) %{_sysconfdir}/%{source_name}/ipsec.conf
 %config(noreplace) %{_initrddir}/ipsec
 %config(noreplace) %{_sysconfdir}/rc.d/*/*
-%dir %{_libdir}/ipsec
+%dir %{_libdir}/ipsec/*
 %{_libdir}/ipsec/*
-%{_sbindir}/*
-%{_mandir}/*/*
-
-
+%{_mandir}/man*/*.lzma
