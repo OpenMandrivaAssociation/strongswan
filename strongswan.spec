@@ -119,7 +119,7 @@ rm -rf %{buildroot}
 %config(noreplace) %{_sysconfdir}/%{source_name}/ipsec.d/examples/*
 %config(noreplace) %{_sysconfdir}/%{source_name}/ipsec.d/policies/*
 %config(noreplace) %{_sysconfdir}/%{source_name}/ipsec.conf
-%config(noreplace) %{_initrddir}/ipsec
+%{_initrddir}/ipsec
 %config(noreplace) %{_sysconfdir}/rc.d/*/*
 %dir %{_libdir}/ipsec/*
 %{_libdir}/ipsec/*
