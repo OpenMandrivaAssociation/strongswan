@@ -85,7 +85,7 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,755)
-%doc CREDITS README
+%doc TODO NEWS README COPYING CREDITS
 %attr(700,root,root) %dir %{_sysconfdir}/%{source_name}
 %attr(700,root,root) %dir %{_sysconfdir}/%{source_name}/ipsec.d/
 %attr(700,root,root) %dir %{_sysconfdir}/%{source_name}/ipsec.d/acerts
