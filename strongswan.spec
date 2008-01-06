@@ -87,7 +87,7 @@ install -m0755 %{SOURCE1} %{buildroot}%{_initrddir}/ipsec
 
 mv %{buildroot}%{_sysconfdir}/ipsec.conf %{buildroot}%{_sysconfdir}/%{source_name}/
 
-rm -f %{buildroot]%{_libdir}/libstrongswan.{so,a,la}
+rm -f %{buildroot}%{_libdir}/libstrongswan.{so,a,la}
 find  %{buildroot}%{_libdir}/ipsec -name "*.a" -o -name "*.la" | xargs -r rm -f
 
 
