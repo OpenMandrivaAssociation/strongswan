@@ -41,7 +41,7 @@ FreeS/WAN on a freeswan enabled kernel.
 %patch1 -p0
 
 %build
-#autoreconf
+autoreconf
 %configure2_5x \
         --enable-smartcard --with-default-pkcs11=%{_libdir}/opensc-pkcs11.so \
         --enable-cisco-quirks   \
@@ -52,15 +52,6 @@ FreeS/WAN on a freeswan enabled kernel.
 #       --enable-dbus
 #       --enable-manager
 
-#%make \
-#    OPT_FLAGS="%{optflags}" \
-#    CONFDIR=%{_sysconfdir}/freeswan/ \
-#    FINALLIBEXECDIR=%{_libdir}/ipsec \
-#    FINALLIBDIR=%{_libdir}/ipsec \
-#    FINALCONFDIR=%{_sysconfdir}/freeswan \
-#    FINALCONFFILE=%{_sysconfdir}/ipsec.conf \
-#    INC_USRLOCAL=%{_prefix} \
-#    INC_MANDIR=share/man
 %make
 
 %install
@@ -69,16 +60,6 @@ rm -rf %{buildroot}
 install -d %{buildroot}%{_sysconfdir}/%{source_name}/ipsec.d/{cacerts,crls,private,certs,acerts,aacerts,ocspcerts}
 install -d %{buildroot}%{_initrddir}
 install -d %{buildroot}/var/run/pluto
-
-#%make \
-#    INC_USRLOCAL=%{_prefix} \
-#    INC_MANDIR=share/man \
-#    FINALLIBEXECDIR=%{_libdir}/ipsec \
-#    FINALLIBDIR=%{_libdir}/ipsec \
-#    FINALEXAMPLECONFDIR=%{_docdir}/%{name} \
-#    CONFDIR="%{buildroot}"%{_sysconfdir}/freeswan \
-#    DESTDIR="%{buildroot}" \
-#    install
 
 %makeinstall_std
 
