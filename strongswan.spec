@@ -85,8 +85,7 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,755)
-%doc CHANGES CREDITS README
-%{_docdir}/%{name}-%{version}/*
+%doc CREDITS README
 %attr(700,root,root) %dir %{_sysconfdir}/%{source_name}
 %attr(700,root,root) %dir %{_sysconfdir}/%{source_name}/ipsec.d/
 %attr(700,root,root) %dir %{_sysconfdir}/%{source_name}/ipsec.d/acerts
@@ -96,12 +95,10 @@ rm -rf %{buildroot}
 %attr(700,root,root) %dir %{_sysconfdir}/%{source_name}/ipsec.d/cacerts
 %attr(700,root,root) %dir %{_sysconfdir}/%{source_name}/ipsec.d/crls
 %attr(700,root,root) %dir %{_sysconfdir}/%{source_name}/ipsec.d/private
-%attr(700,root,root) %dir %{_sysconfdir}/%{source_name}/ipsec.d/policies/
-%config(noreplace) %{_sysconfdir}/%{source_name}/ipsec.d/examples/*
-%config(noreplace) %{_sysconfdir}/%{source_name}/ipsec.d/policies/*
 %config(noreplace) %{_sysconfdir}/%{source_name}/ipsec.conf
 %{_initrddir}/ipsec
 %config(noreplace) %{_sysconfdir}/rc.d/*/*
-%dir %{_libdir}/ipsec/*
 %{_libdir}/ipsec/*
 %{_mandir}/man*/*.lzma
+%{_libdir}/*so*
+%{_sbindir}/ipsec
