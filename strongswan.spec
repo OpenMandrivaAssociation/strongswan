@@ -85,7 +85,7 @@ install -d %{buildroot}/var/run/pluto
 # (fg) File is copied over here
 install -m0755 %{SOURCE1} %{buildroot}%{_initrddir}/ipsec
 
-mv %{buildroot}/usr/local%{_sysconfdir}/ipsec.conf %{buildroot}%{_sysconfdir}/%{source_name}/
+mv %{buildroot}%{_sysconfdir}/ipsec.conf %{buildroot}%{_sysconfdir}/%{source_name}/
 
 rm -f %{buildroot]%{_libdir}/libstrongswan.{so,a,la}
 find  %{buildroot}%{_libdir}/ipsec -name "*.a" -o -name "*.la" | xargs -r rm -f
