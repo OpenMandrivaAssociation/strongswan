@@ -19,6 +19,7 @@ BuildRequires:	libgmp-devel
 BuildRequires:	libldap-devel
 BuildRequires:	libcurl-devel
 BuildRequires:	opensc-devel
+BuildRequires:  libxml2-devel
 Requires:	ipsec-tools
 Requires(post,preun):	rpm-helper
 
@@ -57,7 +58,7 @@ autoreconf
 %install
 rm -rf %{buildroot}
 
-install -d %{buildroot}%{_sysconfdir}/%{source_name}/ipsec.d/{cacerts,crls,private,certs,acerts,aacerts,ocspcerts}
+install -d %{buildroot}%{_sysconfdir}/ipsec.d/{cacerts,crls,private,certs,acerts,aacerts,ocspcerts}
 install -d %{buildroot}%{_initrddir}
 install -d %{buildroot}/var/run/pluto
 
@@ -66,19 +67,24 @@ install -d %{buildroot}/var/run/pluto
 # (fg) File is copied over here
 install -m0755 %{SOURCE1} %{buildroot}%{_initrddir}/ipsec
 
-mv %{buildroot}%{_sysconfdir}/ipsec.conf %{buildroot}%{_sysconfdir}/%{source_name}/
+#mv %{buildroot}%{_sysconfdir}/ipsec.conf %{buildroot}%{_sysconfdir}/%{source_name}/
 
 rm -f %{buildroot}%{_libdir}/libstrongswan.{so,a,la}
 find  %{buildroot}%{_libdir}/ipsec -name "*.a" -o -name "*.la" | xargs -r rm -f
 
 
 %post
-is=%{_sysconfdir}/freeswan/ipsec.secrets; if [ ! -f $is ]; then ipsec newhostkey --output $is && chmod 400 $is; else ipsec newhostkey --output $is.rpmnew && chmod 400 $is.rpmnew; fi
+ldconfig
+#is=%{_sysconfdir}/freeswan/ipsec.secrets; if [ ! -f $is ]; then ipsec newhostkey --output $is && chmod 400 $is; else ipsec newhostkey --output $is.rpmnew && chmod 400 $is.rpmnew; fi
 
 %_post_service ipsec
 
+
 %preun
 %_preun_service ipsec
+
+%postun
+ldconfig
 
 %clean
 rm -rf %{buildroot}
@@ -86,19 +92,19 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,755)
 %doc TODO NEWS README COPYING CREDITS
-%attr(700,root,root) %dir %{_sysconfdir}/%{source_name}
-%attr(700,root,root) %dir %{_sysconfdir}/%{source_name}/ipsec.d/
-%attr(700,root,root) %dir %{_sysconfdir}/%{source_name}/ipsec.d/acerts
-%attr(700,root,root) %dir %{_sysconfdir}/%{source_name}/ipsec.d/aacerts
-%attr(700,root,root) %dir %{_sysconfdir}/%{source_name}/ipsec.d/ocspcerts
-%attr(700,root,root) %dir %{_sysconfdir}/%{source_name}/ipsec.d/certs
-%attr(700,root,root) %dir %{_sysconfdir}/%{source_name}/ipsec.d/cacerts
-%attr(700,root,root) %dir %{_sysconfdir}/%{source_name}/ipsec.d/crls
-%attr(700,root,root) %dir %{_sysconfdir}/%{source_name}/ipsec.d/private
-%config(noreplace) %{_sysconfdir}/%{source_name}/ipsec.conf
+%attr(700,root,root) %dir %{_sysconfdir}/
+%attr(700,root,root) %dir %{_sysconfdir}/ipsec.d/
+%attr(700,root,root) %dir %{_sysconfdir}/ipsec.d/acerts
+%attr(700,root,root) %dir %{_sysconfdir}/ipsec.d/aacerts
+%attr(700,root,root) %dir %{_sysconfdir}/ipsec.d/ocspcerts
+%attr(700,root,root) %dir %{_sysconfdir}/ipsec.d/certs
+%attr(700,root,root) %dir %{_sysconfdir}/ipsec.d/cacerts
+%attr(700,root,root) %dir %{_sysconfdir}/ipsec.d/crls
+%attr(700,root,root) %dir %{_sysconfdir}/ipsec.d/private
+%config(noreplace) %{_sysconfdir}/ipsec.conf
 %{_initrddir}/ipsec
 %config(noreplace) %{_sysconfdir}/rc.d/*/*
-%{_libdir}/ipsec/*
+%{_libdir}/ipsec
 %{_mandir}/man*/*.lzma
-%{_libdir}/*so*
+%{_libdir}/libstrongswan.*
 %{_sbindir}/ipsec
