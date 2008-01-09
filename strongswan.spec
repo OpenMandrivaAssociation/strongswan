@@ -38,8 +38,9 @@ FreeS/WAN on a freeswan enabled kernel.
 %setup -q -n %{name}-%{version}
 
 %build
+autoreconf
 ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
-        --libexecdir=/usr/lib   \
+        --libexecdir=%{_libdir} \
         --enable-smartcard      \
         --enable-cisco-quirks   \
         --enable-http           \
