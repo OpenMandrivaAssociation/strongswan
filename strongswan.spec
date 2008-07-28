@@ -1,5 +1,5 @@
 %define name	strongswan
-%define version 4.1.10
+%define version 4.2.5
 %define release %mkrel 1
 
 Summary:	StrongSWAN IPSEC implementation
@@ -8,7 +8,7 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 URL:		http://www.strongswan.org/
-Source0:	%{name}-%{version}.tar.bz2
+Source0:	http://download.strongswan.org/%{name}-%{version}.tar.bz2
 Source1:	strongswan.init
 Group:		System/Servers
 BuildRequires:	libgmp-devel
@@ -39,18 +39,11 @@ FreeS/WAN on a freeswan enabled kernel.
 
 %build
 autoreconf
-./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
-        --libexecdir=%{_libdir} \
+%configure2_5x \
+	--disable-self-test	\
         --enable-smartcard      \
         --enable-cisco-quirks   \
-        --enable-http           \
-        --enable-ldap           \
-        --enable-xml            \
-        --enable-p2p            \
-        --enable-integrity-test
-#        --enable-manager        \
-#        --with-gid="strongswan"
-
+        --enable-ldap
 %make
 
 %install
@@ -101,7 +94,7 @@ rm -rf %{buildroot}
 %attr(700,root,root) %dir %{_sysconfdir}/ipsec.d/private
 %config(noreplace) %{_sysconfdir}/ipsec.conf
 %{_initrddir}/ipsec
-%config(noreplace) %{_sysconfdir}/rc.d/*/*
+%config(noreplace) %{_sysconfdir}/strongswan.conf
 %{_libdir}/ipsec
 %{_mandir}/man*/*.lzma
 %{_libdir}/libstrongswan.*
