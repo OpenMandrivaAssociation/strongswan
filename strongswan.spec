@@ -1,6 +1,6 @@
 %define name	strongswan
-%define version 4.2.5
-%define release %mkrel 4
+%define version 4.2.6
+%define release %mkrel 1
 
 Summary:	StrongSWAN IPSEC implementation
 Name:		%{name}
