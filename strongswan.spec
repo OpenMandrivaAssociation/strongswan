@@ -1,3 +1,5 @@
+%define Werror_cflags %nil
+
 %define name	strongswan
 %define version 4.2.10
 %define release %mkrel 1
@@ -38,7 +40,6 @@ FreeS/WAN on a freeswan enabled kernel.
 %setup -q -n %{name}-%{version}
 
 %build
-autoreconf
 %configure2_5x \
 	--disable-self-test	\
         --enable-smartcard      \
