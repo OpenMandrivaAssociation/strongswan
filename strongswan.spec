@@ -1,7 +1,7 @@
 %define Werror_cflags %nil
 
 %define name	strongswan
-%define version 4.2.11
+%define version 4.2.12
 %define release %mkrel 1
 
 Summary:	StrongSWAN IPSEC implementation
