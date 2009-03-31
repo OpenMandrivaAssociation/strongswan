@@ -1,17 +1,14 @@
-%define Werror_cflags %nil
-
-%define name	strongswan
-%define version 4.2.12
-%define release %mkrel 1
+#%%define Werror_cflags %nil
 
 Summary:	StrongSWAN IPSEC implementation
-Name:		%{name}
-Version:	%{version}
-Release:	%{release}
+Name:		strongswan
+Version:	4.2.14
+Release:	%mkrel 1
 License:	GPL
 URL:		http://www.strongswan.org/
 Source0:	http://download.strongswan.org/%{name}-%{version}.tar.bz2
 Source1:	strongswan.init
+Patch0:		strongswan-4.2.14-format_not_a_string_literal_and_no_format_arguments.diff
 Group:		System/Servers
 BuildRequires:	libgmp-devel
 BuildRequires:	libldap-devel
@@ -19,9 +16,9 @@ BuildRequires:	libcurl-devel
 BuildRequires:	opensc-devel
 BuildRequires:  libxml2-devel
 BuildRequires:  libfcgi-devel
-Requires:   libopensc2
-Requires(post,preun):	rpm-helper
-
+Requires:	libopensc2
+Requires(post): rpm-helper
+Requires(preun): rpm-helper
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
@@ -38,13 +35,18 @@ FreeS/WAN on a freeswan enabled kernel.
 
 %prep
 %setup -q -n %{name}-%{version}
+%patch0 -p0
 
 %build
+%serverbuild
+
 %configure2_5x \
-	--disable-self-test	\
-        --enable-smartcard      \
-        --enable-cisco-quirks   \
-        --enable-ldap
+    --disable-self-test	\
+    --enable-smartcard \
+    --enable-cisco-quirks \
+    --enable-ldap \
+    --with-default-pkcs11=%{_libdir}/opensc-pkcs11.so
+
 %make
 
 %install
@@ -97,6 +99,6 @@ rm -rf %{buildroot}
 %{_initrddir}/ipsec
 %config(noreplace) %{_sysconfdir}/strongswan.conf
 %{_libdir}/ipsec
-%{_mandir}/man*/*.lzma
+%{_mandir}/man*/*
 %{_libdir}/libstrongswan.*
 %{_sbindir}/ipsec
