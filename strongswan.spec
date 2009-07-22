@@ -2,7 +2,7 @@
 
 Summary:	StrongSWAN IPSEC implementation
 Name:		strongswan
-Version:	4.3.2
+Version:	4.3.3
 Release:	%mkrel 1
 License:	GPL
 URL:		http://www.strongswan.org/
