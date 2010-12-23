@@ -3,7 +3,7 @@
 Summary:	StrongSWAN IPSEC implementation
 Name:		strongswan
 Version:	4.3.6
-Release:	%mkrel 2
+Release:	%mkrel 3
 License:	GPL
 URL:		http://www.strongswan.org/
 Source0:	http://download.strongswan.org/%{name}-%{version}.tar.bz2
@@ -16,7 +16,7 @@ BuildRequires:	libcurl-devel
 BuildRequires:	opensc-devel
 BuildRequires:  libxml2-devel
 BuildRequires:  libfcgi-devel
-Requires:	%{_lib}opensc2
+Requires:	%{_lib}opensc3
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
