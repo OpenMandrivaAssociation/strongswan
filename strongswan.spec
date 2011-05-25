@@ -8,7 +8,8 @@ License:	GPL
 URL:		http://www.strongswan.org/
 Source0:	http://download.strongswan.org/%{name}-%{version}.tar.bz2
 Source1:	strongswan.init
-Patch0:		strongswan-4.2.14-format_not_a_string_literal_and_no_format_arguments.diff
+Patch0:		strongswan-4.5.2-format_not_a_string_literal_and_no_format_arguments.diff
+Patch1:		strongswan-4.5.2-link.patch
 Group:		System/Servers
 BuildRequires:	libgmp-devel
 BuildRequires:	libldap-devel
@@ -35,6 +36,8 @@ FreeS/WAN on a freeswan enabled kernel.
 
 %prep
 %setup -q -n %{name}-%{version}
+%patch0 -p0 -b .str
+%patch1 -p0 -b .link
 
 %build
 %serverbuild
@@ -62,7 +65,7 @@ install -m0755 %{SOURCE1} %{buildroot}%{_initrddir}/ipsec
 
 #mv %{buildroot}%{_sysconfdir}/ipsec.conf %{buildroot}%{_sysconfdir}/%{source_name}/
 
-rm -f %{buildroot}%{_libdir}/libstrongswan.{so,a,la}
+rm -f %{buildroot}%{_libdir}/lib*.{so,a,la}
 find  %{buildroot}%{_libdir}/ipsec -name "*.a" -o -name "*.la" | xargs -r rm -f
 
 #%pre
@@ -96,7 +99,8 @@ rm -rf %{buildroot}
 %config(noreplace) %{_sysconfdir}/ipsec.conf
 %{_initrddir}/ipsec
 %config(noreplace) %{_sysconfdir}/strongswan.conf
+/lib/systemd/system/strongswan.service
 %{_libdir}/ipsec
 %{_mandir}/man*/*
-%{_libdir}/libstrongswan.*
+%{_libdir}/lib*.so.*
 %{_sbindir}/ipsec
