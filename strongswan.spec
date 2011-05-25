@@ -2,8 +2,8 @@
 
 Summary:	StrongSWAN IPSEC implementation
 Name:		strongswan
-Version:	4.3.6
-Release:	%mkrel 3
+Version:	4.5.2
+Release:	%mkrel 1
 License:	GPL
 URL:		http://www.strongswan.org/
 Source0:	http://download.strongswan.org/%{name}-%{version}.tar.bz2
@@ -35,7 +35,6 @@ FreeS/WAN on a freeswan enabled kernel.
 
 %prep
 %setup -q -n %{name}-%{version}
-%patch0 -p0
 
 %build
 %serverbuild
