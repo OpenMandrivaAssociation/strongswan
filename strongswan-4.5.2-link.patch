@@ -1,0 +1,44 @@
+--- src/libhydra/Makefile.am.link	2011-05-25 14:34:21.000000000 +0200
++++ src/libhydra/Makefile.am	2011-05-25 14:35:11.000000000 +0200
+@@ -11,7 +11,7 @@
+ kernel/kernel_net.h \
+ kernel/kernel_listener.h
+ 
+-libhydra_la_LIBADD =
++libhydra_la_LIBADD = $(top_builddir)/src/libstrongswan/libstrongswan.la
+ 
+ INCLUDES = -I$(top_srcdir)/src/libstrongswan
+ AM_CFLAGS = \
+--- src/libhydra/Makefile.in.link	2011-05-25 14:34:28.000000000 +0200
++++ src/libhydra/Makefile.in	2011-05-25 14:35:59.000000000 +0200
+@@ -339,7 +339,7 @@
+ 
+ libhydra_la_LIBADD = $(am__append_2) $(am__append_4) $(am__append_6) \
+ 	$(am__append_8) $(am__append_10) $(am__append_12) \
+-	$(am__append_14)
++	$(am__append_14) $(top_builddir)/src/libstrongswan/libstrongswan.la
+ INCLUDES = -I$(top_srcdir)/src/libstrongswan
+ AM_CFLAGS = \
+ -DIPSEC_DIR=\"${ipsecdir}\" \
+--- src/libcharon/Makefile.am.link	2011-05-25 14:46:59.000000000 +0200
++++ src/libcharon/Makefile.am	2011-05-25 14:48:10.000000000 +0200
+@@ -110,7 +110,7 @@
+ 	-DIPSEC_PIDDIR=\"${piddir}\" \
+ 	-DPLUGINS=\""${libcharon_plugins}\""
+ 
+-libcharon_la_LIBADD = -lm $(PTHREADLIB) $(DLLIB) $(SOCKLIB)
++libcharon_la_LIBADD = -lm $(PTHREADLIB) $(DLLIB) $(SOCKLIB) $(top_builddir)/src/libhydra/libhydra.la $(top_builddir)/src/libstrongswan/libstrongswan.la
+ 
+ EXTRA_DIST = Android.mk
+ 
+--- src/libcharon/Makefile.in.link	2011-05-25 14:47:07.000000000 +0200
++++ src/libcharon/Makefile.in	2011-05-25 14:48:27.000000000 +0200
+@@ -737,7 +737,7 @@
+ 	$(am__append_72) $(am__append_74) $(am__append_76) \
+ 	$(am__append_78) $(am__append_80) $(am__append_82) \
+ 	$(am__append_84) $(am__append_86) $(am__append_88) \
+-	$(am__append_90) $(am__append_92) $(am__append_94)
++	$(am__append_90) $(am__append_92) $(am__append_94) $(top_builddir)/src/libhydra/libhydra.la $(top_builddir)/src/libstrongswan/libstrongswan.la
+ EXTRA_DIST = Android.mk
+ @MONOLITHIC_FALSE@SUBDIRS = . $(am__append_3) $(am__append_5) \
+ @MONOLITHIC_FALSE@	$(am__append_7) $(am__append_9) \
