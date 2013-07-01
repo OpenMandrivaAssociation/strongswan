@@ -1,6 +1,6 @@
 #%%define Werror_cflags %nil
 
-Summary:	StrongSWAN IPSEC implementation
+Summary:	IPSEC implementation
 Name:		strongswan
 Version:	5.0.1
 Release:	1
