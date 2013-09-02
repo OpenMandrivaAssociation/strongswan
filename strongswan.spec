@@ -25,6 +25,7 @@ BuildRequires:  sqlite-devel
 BuildRequires:  gettext-devel
 BuildRequires:  trousers-devel
 BuildRequires:	pkgconfig(libxml-2.0)
+BuildRequires:	pkgconfig(systemd)
 %if %{with nm}
 BuildRequires:	pkgconfig(NetworkManager)
 BuildRequires:	pkgconfig(libnm-glib-vpn)
