@@ -1,24 +1,37 @@
 #%%define Werror_cflags %nil
+%define _disable_ld_no_undefined 1
+%bcond_without	nm
 
 Summary:	IPSEC implementation
 Name:		strongswan
-Version:	5.0.1
-Release:	2
+Version:	5.1.0
+Release:	1
 License:	GPLv2+
 URL:		http://www.strongswan.org/
 Source0:	http://download.strongswan.org/%{name}-%{version}.tar.bz2
-Source1:	strongswan.init
-Patch0:		strongswan-4.5.2-format_not_a_string_literal_and_no_format_arguments.diff
-Patch1:		strongswan-5.0.1-rosa-link.patch
+
+Patch0:		strongswan-init.patch
+Patch1:		strongswan-pts-ecp-disable.patch
+Patch2:		libstrongswan-plugin.patch
+Patch3:		libstrongswan-settings-debug.patch
+
 Group:		System/Servers
-BuildRequires:	gmp-devel
-BuildRequires:	libldap-devel
-BuildRequires:	curl-devel
-BuildRequires:	opensc-devel
-BuildRequires:  libxml2-devel
-BuildRequires:  libfcgi-devel
-BuildRequires:  intltool
-Requires:	%{_lib}opensc3
+
+BuildRequires:  gmp-devel
+BuildRequires:  curl-devel
+BuildRequires:  openldap-devel
+BuildRequires:  openssl-devel
+BuildRequires:  sqlite-devel
+BuildRequires:  gettext-devel
+BuildRequires:  trousers-devel
+BuildRequires:	pkgconfig(libxml-2.0)
+%if %{with nm}
+BuildRequires:	pkgconfig(NetworkManager)
+BuildRequires:	pkgconfig(libnm-glib-vpn)
+BuildRequires:	pkgconfig(libnm-util)
+BuildRequires:	pkgconfig(libnm-glib)
+%endif
+
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 
@@ -34,204 +47,242 @@ tunnel is a virtual private network or VPN.
 This package contains the daemons and userland tools for setting up
 FreeS/WAN on a freeswan enabled kernel.
 
+
+%if %{with nm}
+%package	charon-nm
+Summary:	NetworkManager plugin for Strongswan
+Group:		System/Servers
+
+%description charon-nm
+NetworkManager plugin integrates a subset of Strongswan capabilities
+to NetworkManager.
+%endif
+
+%package	tnc-imcvs
+Summary:	Trusted network connect (TNC)'s IMC/IMV functionality
+Group:		System/Servers
+Requires:	%{name} = %{version}
+
+%description tnc-imcvs
+This package provides Trusted Network Connect's (TNC) IMC and IMV
+functionality. Specifically it includes PTS based IMC/IMV for TPM based
+remote attestation and scanner and test IMCs and IMVs. The Strongswan's
+IMC/IMV dynamic libraries can be used by any third party TNC Client/Server
+implementation possessing a standard IF-IMC/IMV interface.
+
+
 %prep
 %setup -q
-#patch0 -p0 -b .str
-%patch1 -p1 -b .link
+%apply_patches
+echo "For migration from 4.6 to 5.0 see http://wiki.strongswan.org/projects/strongswan/wiki/CharonPlutoIKEv1" > README.omv
 
 %build
-autoreconf
-%serverbuild
 
-%configure2_5x \
-    --enable-smartcard \
-    --enable-cisco-quirks \
-    --enable-ldap \
-    --with-default-pkcs11=%{_libdir}/opensc-pkcs11.so \
+libtoolize --install --copy --force --automake
+aclocal -I m4
+autoconf
+autoheader
+automake --add-missing --copy
+
+%serverbuild
+%configure \
     --disable-static \
-    --with-systemdsystemunitdir=%{_systemunitdir}
+    --with-ipsec-script=%{name} \
+    --sysconfdir=%{_sysconfdir}/%{name} \
+    --with-ipsecdir=%{_libexecdir}/%{name} \
+    --with-ipseclibdir=%{_libdir}/%{name} \
+    --with-fips-mode=2 \
+    --with-tss=trousers \
+    --enable-openssl \
+    --enable-md4 \
+    --enable-xauth-eap \
+    --enable-eap-md5 \
+    --enable-eap-gtc \
+    --enable-eap-tls \
+    --enable-eap-ttls \
+    --enable-eap-peap \
+    --enable-eap-mschapv2 \
+    --enable-farp \
+    --enable-dhcp \
+    --enable-sqlite \
+    --enable-tnc-ifmap \
+    --enable-tnc-pdp \
+    --enable-imc-test \
+    --enable-imv-test \
+    --enable-imc-scanner \
+    --enable-imv-scanner  \
+    --enable-imc-attestation \
+    --enable-imv-attestation \
+    --enable-imv-os \
+    --enable-imc-os \
+    --enable-eap-tnc \
+    --enable-tnccs-20 \
+    --enable-tnccs-11 \
+    --enable-tnccs-dynamic \
+    --enable-tnc-imc \
+    --enable-tnc-imv \
+    --enable-eap-radius \
+    --enable-curl \
+    --enable-eap-identity \
+%if %{with nm}
+    --enable-nm \
+%endif
 
 %make
+sed -i 's/\t/    /' src/strongswan.conf src/starter/ipsec.conf
 
 %install
-install -d %{buildroot}%{_sysconfdir}/ipsec.d/{cacerts,crls,private,certs,acerts,aacerts,ocspcerts}
-install -d %{buildroot}%{_initrddir}
-install -d %{buildroot}/var/run/pluto
+%makeinstall_std
+# prefix man pages
+for i in %{buildroot}%{_mandir}/*/*; do
+    if echo "$i" | grep -vq '/%{name}[^\/]*$'; then
+        mv "$i" "`echo "$i" | sed -re 's|/([^/]+)$|/%{name}_\1|'`"
+    fi
+done
+# delete unwanted library files
+rm %{buildroot}%{_libdir}/%{name}/*.so
+find %{buildroot} -type f -name '*.la' -delete
+# fix config permissions
+chmod 644 %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
+# protect configuration from ordinary user's eyes
+chmod 700 %{buildroot}%{_sysconfdir}/%{name}
 
-
-make install DESTDIR=%{buildroot}
-
-# (fg) File is copied over here
-install -m0755 %{SOURCE1} %{buildroot}%{_initrddir}/ipsec
-
-#mv %{buildroot}%{_sysconfdir}/ipsec.conf %{buildroot}%{_sysconfdir}/%{source_name}/
-
-#rm -f %{buildroot}%{_libdir}/lib*.{so,a,la}
-
-#%pre
-#%_pre_useradd strongswan
+# Create ipsec.d directory tree.
+install -d -m 700 %{buildroot}%{_sysconfdir}/%{name}/ipsec.d
+for i in aacerts acerts certs cacerts crls ocspcerts private reqs; do
+    install -d -m 700 %{buildroot}%{_sysconfdir}/%{name}/ipsec.d/${i}
+done
 
 %post
-%_post_service ipsec
-
+%_post_service %{name}
 
 %preun
-%_preun_service ipsec
+%_preun_service %{name}
 
 #%postun
 #%_postun_userdel strongswan
 
 %files
-%defattr(-,root,root,755)
-%doc AUTHORS TODO NEWS README LICENSE
-%attr(700,root,root) %dir %{_sysconfdir}/ipsec.d/
-%attr(700,root,root) %dir %{_sysconfdir}/ipsec.d/acerts
-%attr(700,root,root) %dir %{_sysconfdir}/ipsec.d/aacerts
-%attr(700,root,root) %dir %{_sysconfdir}/ipsec.d/ocspcerts
-%attr(700,root,root) %dir %{_sysconfdir}/ipsec.d/certs
-%attr(700,root,root) %dir %{_sysconfdir}/ipsec.d/cacerts
-%attr(700,root,root) %dir %{_sysconfdir}/ipsec.d/crls
-%attr(700,root,root) %dir %{_sysconfdir}/ipsec.d/private
-%config(noreplace) %{_sysconfdir}/ipsec.conf
-%{_initrddir}/ipsec
-%config(noreplace) %{_sysconfdir}/strongswan.conf
-%{_systemunitdir}/strongswan.service
-%{_libdir}/ipsec
-%{_mandir}/man*/*
-%{_sbindir}/ipsec
+%doc README README.omv COPYING NEWS TODO
+%dir %{_sysconfdir}/%{name}
+%{_sysconfdir}/%{name}/ipsec.d/
+%config(noreplace) %{_sysconfdir}/%{name}/ipsec.conf
+%config(noreplace) %{_sysconfdir}/%{name}/%{name}.conf
+%{_unitdir}/%{name}.service
+%{_libdir}/%{name}/libcharon.so.0
+%{_libdir}/%{name}/libcharon.so.0.0.0
+%{_libdir}/%{name}/libhydra.so.0
+%{_libdir}/%{name}/libhydra.so.0.0.0
+%{_libdir}/%{name}/libtls.so.0
+%{_libdir}/%{name}/libtls.so.0.0.0
+%{_libdir}/%{name}/libpttls.so.0
+%{_libdir}/%{name}/libpttls.so.0.0.0
+%{_libdir}/%{name}/lib%{name}.so.0
+%{_libdir}/%{name}/lib%{name}.so.0.0.0
+%dir %{_libdir}/%{name}/plugins
+%{_libdir}/%{name}/plugins/lib%{name}-aes.so
+%{_libdir}/%{name}/plugins/lib%{name}-attr.so
+%{_libdir}/%{name}/plugins/lib%{name}-cmac.so
+%{_libdir}/%{name}/plugins/lib%{name}-constraints.so
+%{_libdir}/%{name}/plugins/lib%{name}-des.so
+%{_libdir}/%{name}/plugins/lib%{name}-dnskey.so
+%{_libdir}/%{name}/plugins/lib%{name}-fips-prf.so
+%{_libdir}/%{name}/plugins/lib%{name}-gmp.so
+%{_libdir}/%{name}/plugins/lib%{name}-hmac.so
+%{_libdir}/%{name}/plugins/lib%{name}-kernel-netlink.so
+%{_libdir}/%{name}/plugins/lib%{name}-md5.so
+%{_libdir}/%{name}/plugins/lib%{name}-nonce.so
+%{_libdir}/%{name}/plugins/lib%{name}-openssl.so
+%{_libdir}/%{name}/plugins/lib%{name}-pem.so
+%{_libdir}/%{name}/plugins/lib%{name}-pgp.so
+%{_libdir}/%{name}/plugins/lib%{name}-pkcs1.so
+%{_libdir}/%{name}/plugins/lib%{name}-pkcs8.so
+%{_libdir}/%{name}/plugins/lib%{name}-pkcs12.so
+%{_libdir}/%{name}/plugins/lib%{name}-rc2.so
+%{_libdir}/%{name}/plugins/lib%{name}-sshkey.so
+%{_libdir}/%{name}/plugins/lib%{name}-pubkey.so
+%{_libdir}/%{name}/plugins/lib%{name}-random.so
+%{_libdir}/%{name}/plugins/lib%{name}-resolve.so
+%{_libdir}/%{name}/plugins/lib%{name}-revocation.so
+%{_libdir}/%{name}/plugins/lib%{name}-sha1.so
+%{_libdir}/%{name}/plugins/lib%{name}-sha2.so
+%{_libdir}/%{name}/plugins/lib%{name}-socket-default.so
+%{_libdir}/%{name}/plugins/lib%{name}-stroke.so
+%{_libdir}/%{name}/plugins/lib%{name}-updown.so
+%{_libdir}/%{name}/plugins/lib%{name}-x509.so
+%{_libdir}/%{name}/plugins/lib%{name}-xauth-generic.so
+%{_libdir}/%{name}/plugins/lib%{name}-xauth-eap.so
+%{_libdir}/%{name}/plugins/lib%{name}-xcbc.so
+%{_libdir}/%{name}/plugins/lib%{name}-md4.so
+%{_libdir}/%{name}/plugins/lib%{name}-eap-md5.so
+%{_libdir}/%{name}/plugins/lib%{name}-eap-gtc.so
+%{_libdir}/%{name}/plugins/lib%{name}-eap-tls.so
+%{_libdir}/%{name}/plugins/lib%{name}-eap-ttls.so
+%{_libdir}/%{name}/plugins/lib%{name}-eap-peap.so
+%{_libdir}/%{name}/plugins/lib%{name}-eap-mschapv2.so
+%{_libdir}/%{name}/plugins/lib%{name}-farp.so
+%{_libdir}/%{name}/plugins/lib%{name}-dhcp.so
+%{_libdir}/%{name}/plugins/lib%{name}-curl.so
+%{_libdir}/%{name}/plugins/lib%{name}-eap-identity.so
+%dir %{_libexecdir}/%{name}
+%{_libexecdir}/%{name}/_copyright
+%{_libexecdir}/%{name}/_updown
+%{_libexecdir}/%{name}/_updown_espmark
+%{_libexecdir}/%{name}/charon
+%{_libexecdir}/%{name}/openac
+%{_libexecdir}/%{name}/pki
+%{_libexecdir}/%{name}/scepclient
+%{_libexecdir}/%{name}/starter
+%{_libexecdir}/%{name}/stroke
+%{_libexecdir}/%{name}/_imv_policy
+%{_libexecdir}/%{name}/imv_policy_manager
+%{_sbindir}/%{name}
+%{_mandir}/man5/%{name}.conf.5.*
+%{_mandir}/man5/%{name}_ipsec.conf.5.*
+%{_mandir}/man5/%{name}_ipsec.secrets.5.*
+%{_mandir}/man8/%{name}.8.*
+%{_mandir}/man8/%{name}__updown.8.*
+%{_mandir}/man8/%{name}__updown_espmark.8.*
+%{_mandir}/man8/%{name}_openac.8.*
+%{_mandir}/man8/%{name}_scepclient.8.*
 
+%files tnc-imcvs
+%{_libdir}/%{name}/libimcv.so.0
+%{_libdir}/%{name}/libimcv.so.0.0.0
+%{_libdir}/%{name}/libpts.so.0
+%{_libdir}/%{name}/libpts.so.0.0.0
+%{_libdir}/%{name}/libtnccs.so.0
+%{_libdir}/%{name}/libtnccs.so.0.0.0
+%{_libdir}/%{name}/libradius.so.0
+%{_libdir}/%{name}/libradius.so.0.0.0
+%dir %{_libdir}/%{name}/imcvs
+%{_libdir}/%{name}/imcvs/imc-attestation.so
+%{_libdir}/%{name}/imcvs/imc-scanner.so
+%{_libdir}/%{name}/imcvs/imc-test.so
+%{_libdir}/%{name}/imcvs/imc-os.so
+%{_libdir}/%{name}/imcvs/imv-attestation.so
+%{_libdir}/%{name}/imcvs/imv-scanner.so
+%{_libdir}/%{name}/imcvs/imv-test.so
+%{_libdir}/%{name}/imcvs/imv-os.so
+%dir %{_libdir}/%{name}/plugins
+%{_libdir}/%{name}/plugins/lib%{name}-pkcs7.so
+%{_libdir}/%{name}/plugins/lib%{name}-sqlite.so
+%{_libdir}/%{name}/plugins/lib%{name}-eap-tnc.so
+%{_libdir}/%{name}/plugins/lib%{name}-tnc-imc.so
+%{_libdir}/%{name}/plugins/lib%{name}-tnc-imv.so
+%{_libdir}/%{name}/plugins/lib%{name}-tnc-tnccs.so
+%{_libdir}/%{name}/plugins/lib%{name}-tnccs-20.so
+%{_libdir}/%{name}/plugins/lib%{name}-tnccs-11.so
+%{_libdir}/%{name}/plugins/lib%{name}-tnccs-dynamic.so
+%{_libdir}/%{name}/plugins/lib%{name}-eap-radius.so
+%{_libdir}/%{name}/plugins/lib%{name}-tnc-ifmap.so
+%{_libdir}/%{name}/plugins/lib%{name}-tnc-pdp.so
+%dir %{_libexecdir}/%{name}
+%{_libexecdir}/%{name}/attest
+%{_libexecdir}/%{name}/pacman
 
-%changelog
-* Wed May 25 2011 Funda Wang <fwang@mandriva.org> 4.5.2-1mdv2011.0
-+ Revision: 678997
-- fix build
-- new version 4.5.2
-
-* Thu Dec 23 2010 Funda Wang <fwang@mandriva.org> 4.3.6-3mdv2011.0
-+ Revision: 624023
-- update requires
-
-* Wed Dec 08 2010 Oden Eriksson <oeriksson@mandriva.com> 4.3.6-2mdv2011.0
-+ Revision: 615010
-- the mass rebuild of 2010.1 packages
-
-* Fri Feb 12 2010 Frederik Himpe <fhimpe@mandriva.org> 4.3.6-1mdv2010.1
-+ Revision: 505052
-- update to new version 4.3.6
-
-* Wed Feb 10 2010 Funda Wang <fwang@mandriva.org> 4.3.5-3mdv2010.1
-+ Revision: 503626
-- rebuild for new gmp
-
-* Thu Feb 04 2010 Funda Wang <fwang@mandriva.org> 4.3.5-2mdv2010.1
-+ Revision: 500815
-- fix opensc2 requires
-
-* Mon Nov 09 2009 Frederik Himpe <fhimpe@mandriva.org> 4.3.5-1mdv2010.1
-+ Revision: 463623
-- update to new version 4.3.5
-
-* Wed Aug 19 2009 Frederik Himpe <fhimpe@mandriva.org> 4.3.4-1mdv2010.0
-+ Revision: 417955
-- update to new version 4.3.4
-
-* Wed Jul 22 2009 Frederik Himpe <fhimpe@mandriva.org> 4.3.3-1mdv2010.0
-+ Revision: 398490
-- update to new version 4.3.3
-
-* Mon Jun 22 2009 Frederik Himpe <fhimpe@mandriva.org> 4.3.2-1mdv2010.0
-+ Revision: 388054
-- update to new version 4.3.2
-
-* Wed May 27 2009 Frederik Himpe <fhimpe@mandriva.org> 4.3.1-1mdv2010.0
-+ Revision: 380247
-- update to new version 4.3.1
-
-* Tue Mar 31 2009 Oden Eriksson <oeriksson@mandriva.com> 4.2.14-1mdv2009.1
-+ Revision: 362884
-- 4.2.14 (fixes CVE-2009-0790)
-- added P0 to fix build with -Werror=format-security
-
-* Mon Feb 23 2009 Frederik Himpe <fhimpe@mandriva.org> 4.2.12-1mdv2009.1
-+ Revision: 344304
-- Update to new version 4.2.12
-
-* Fri Jan 23 2009 Jérôme Soyer <saispo@mandriva.org> 4.2.11-1mdv2009.1
-+ Revision: 332879
-- New upstream release
-
-* Mon Jan 12 2009 Jérôme Soyer <saispo@mandriva.org> 4.2.10-1mdv2009.1
-+ Revision: 328668
-- New upstream release
-- New upstream release
-
-* Wed Dec 03 2008 Jérôme Soyer <saispo@mandriva.org> 4.2.9-1mdv2009.1
-+ Revision: 309644
-- New release 4.2.9
-
-* Fri Sep 19 2008 Frederik Himpe <fhimpe@mandriva.org> 4.2.7-1mdv2009.0
-+ Revision: 286024
-- Update to new version 4.2.7 (fixes denial of service vulnerablity)
-
-* Thu Aug 28 2008 Frederik Himpe <fhimpe@mandriva.org> 4.2.6-1mdv2009.0
-+ Revision: 276940
-- update to new version 4.2.6
-
-* Sat Aug 02 2008 Thierry Vignaud <tv@mandriva.org> 4.2.5-4mdv2009.0
-+ Revision: 261210
-- rebuild
-
-* Tue Jul 29 2008 Thierry Vignaud <tv@mandriva.org> 4.2.5-3mdv2009.0
-+ Revision: 253581
-- rebuild
-
-* Mon Jul 28 2008 Funda Wang <fwang@mandriva.org> 4.2.5-1mdv2009.0
-+ Revision: 250813
-- New version 4.2.5
-
-  + Jérôme Soyer <saispo@mandriva.org>
-    - Fix lib building
-    - Add files
-    - Clean Init
-      Fix building
-      Fix Running
-    - Clean specs
-    - Add some doc
-    - Fix specs
-    - Clean specs
-    - Try to build a new release
-    - Try to build a new release
-
-  + Olivier Blin <oblin@mandriva.com>
-    - initscript is not a config file
-    - fix ipsec.conf path
-
-* Fri Jan 04 2008 Thierry Vignaud <tv@mandriva.org> 2.8.3-2mdv2008.1
-+ Revision: 145485
-- adapt to new docdir layout
-- fix prereq on rpm-helper
-- kill re-definition of %%buildroot on Pixel's request
-
-
-* Fri Mar 16 2007 Olivier Blin <oblin@mandriva.com> 2.8.3-2mdv2007.1
-+ Revision: 145276
-- fix build on x86_64
-- 2.8.3 (and fix installation, #26453)
-
-  + Jérôme Soyer <saispo@mandriva.org>
-    - Import strongswan
-
-* Sat Sep 10 2005 Andreas Hasenack <andreas@mandriva.com> 2.0.2-4mdk
-- added gcc4 patch from ehabkost@mandriva.com and from openswan cvs
-- rebuilt with openldap-2.3.x
-
-* Mon Feb 07 2005 Buchan Milne <bgmilne@linux-mandrake.com> 2.0.2-3mdk
-- rebuild for ldap2.2_7
-
-* Thu Oct 14 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 2.0.2-2mdk
-- rebuilt against new libcurl
-- misc spec file fixes
-
-* Thu Jun 10 2004 Florin <florin@mandrakesoft.com> 2.0.2-1mdk
-- first Mandrake release
-
+%if %{with nm}
+%files charon-nm
+%doc COPYING
+%{_libexecdir}/%{name}/charon-nm
+%endif
