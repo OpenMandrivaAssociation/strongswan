@@ -4,7 +4,7 @@
 
 Summary:	IPSEC implementation
 Name:		strongswan
-Version:	5.1.0
+Version:	5.1.1
 Release:	1
 License:	GPLv2+
 URL:		http://www.strongswan.org/
@@ -231,14 +231,16 @@ done
 %{_libexecdir}/%{name}/_updown_espmark
 %{_libexecdir}/%{name}/charon
 %{_libexecdir}/%{name}/openac
-%{_libexecdir}/%{name}/pki
 %{_libexecdir}/%{name}/scepclient
 %{_libexecdir}/%{name}/starter
 %{_libexecdir}/%{name}/stroke
 %{_libexecdir}/%{name}/_imv_policy
 %{_libexecdir}/%{name}/imv_policy_manager
+%{_libexecdir}/%{name}/pt-tls-client
 %{_sbindir}/%{name}
+%{_bindir}/pki
 %{_mandir}/man5/%{name}.conf.5.*
+%{_mandir}/man1/%{name}*.1.*
 %{_mandir}/man5/%{name}_ipsec.conf.5.*
 %{_mandir}/man5/%{name}_ipsec.secrets.5.*
 %{_mandir}/man8/%{name}.8.*
