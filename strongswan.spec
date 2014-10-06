@@ -5,12 +5,11 @@
 Summary:	IPSEC implementation
 Name:		strongswan
 Version:	5.1.1
-Release:	1
+Release:	2
 License:	GPLv2+
 URL:		http://www.strongswan.org/
 Source0:	http://download.strongswan.org/%{name}-%{version}.tar.bz2
 
-Patch0:		strongswan-init.patch
 Patch1:		strongswan-pts-ecp-disable.patch
 Patch2:		libstrongswan-plugin.patch
 Patch3:		libstrongswan-settings-debug.patch
@@ -32,9 +31,6 @@ BuildRequires:	pkgconfig(libnm-glib-vpn)
 BuildRequires:	pkgconfig(libnm-util)
 BuildRequires:	pkgconfig(libnm-glib)
 %endif
-
-Requires(post): rpm-helper
-Requires(preun): rpm-helper
 
 %description
 FreeS/WAN is a free implementation of IPSEC & IKE for Linux.  IPSEC is
