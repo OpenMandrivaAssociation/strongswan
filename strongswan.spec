@@ -5,7 +5,7 @@
 Summary:	IPSEC implementation
 Name:		strongswan
 Version:	5.1.1
-Release:	2
+Release:	3
 License:	GPLv2+
 URL:		http://www.strongswan.org/
 Source0:	http://download.strongswan.org/%{name}-%{version}.tar.bz2
