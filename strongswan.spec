@@ -70,7 +70,7 @@ implementation possessing a standard IF-IMC/IMV interface.
 
 %prep
 %setup -q
-%apply_patches
+%autopatch -p1
 echo "For migration from 4.6 to 5.0 see http://wiki.strongswan.org/projects/strongswan/wiki/CharonPlutoIKEv1" > README.omv
 
 %build
