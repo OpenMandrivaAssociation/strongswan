@@ -1,0 +1,13 @@
+# We marked /etc/strongswan, /etc/strongswan/ipsec.d and the dirs
+# below the latter as "0700".
+# The build process marked /etc/strongswan/swanctl and the dirs
+# below as "0750": perhaps also this is OK...
+addFilter("E: non-standard-dir-perm")
+
+# Security-related files: so it is OK
+# be not readable by the world
+addFilter("E: non-readable")
+
+# Sorry: all the files flagged with this warning
+# are really config files
+addFilter("W: non-conffile-in-etc")

@@ -1,0 +1,12 @@
+diff -rupN strongswan-5.8.4.old/conf/plugins/openssl.conf strongswan-5.8.4/conf/plugins/openssl.conf
+--- strongswan-5.8.4.old/conf/plugins/openssl.conf	2020-03-26 09:26:29.000000000 +0100
++++ strongswan-5.8.4/conf/plugins/openssl.conf	2020-04-07 14:57:09.177317568 +0200
+@@ -4,7 +4,7 @@ openssl {
+     # engine_id = pkcs11
+ 
+     # Set OpenSSL FIPS mode: disabled(0), enabled(1), Suite B enabled(2).
+-    # fips_mode = 0
++    fips_mode = 0
+ 
+     # Whether to load the plugin. Can also be an integer to increase the
+     # priority of this plugin.
