@@ -8,7 +8,7 @@
 Summary:	IPSEC implementation
 Name:		strongswan
 Version:	5.9.1
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Servers
 Url:		https://www.strongswan.org/
