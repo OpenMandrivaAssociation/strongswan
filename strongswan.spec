@@ -18,6 +18,11 @@ Patch0:		strongswan-5.6.0-uintptr_t.patch
 # To fix openssl plugin failure at loading (rbz #10579)
 Patch1:		strongswan-5.8.4-openssl-disable-fips.patch
 Source100:	%{name}.rpmlintrc
+BuildRequires:	autoconf
+BuildRequires:	automake
+BuildRequires:	libtool-base
+BuildRequires:	slibtool
+BuildRequires:	make
 BuildRequires:	bison
 BuildRequires:	byacc
 BuildRequires:	flex
