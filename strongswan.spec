@@ -7,8 +7,8 @@
 
 Summary:	IPSEC implementation
 Name:		strongswan
-Version:	5.9.1
-Release:	3
+Version:	6.0.7
+Release:	1
 License:	GPLv2+
 Group:		System/Servers
 Url:		https://www.strongswan.org/
@@ -313,8 +313,8 @@ remote attestation and scanner and test IMCs and IMVs.
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
+%patch -P 0 -p1
+%patch -P 1 -p1
 
 
 %build

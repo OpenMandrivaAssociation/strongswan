@@ -1,6 +1,7 @@
-diff -rupN strongswan-5.8.4.old/conf/plugins/openssl.conf strongswan-5.8.4/conf/plugins/openssl.conf
---- strongswan-5.8.4.old/conf/plugins/openssl.conf	2020-03-26 09:26:29.000000000 +0100
-+++ strongswan-5.8.4/conf/plugins/openssl.conf	2020-04-07 14:57:09.177317568 +0200
+diff --git a/conf/plugins/openssl.conf b/conf/plugins/openssl.conf
+index fd4658b..7b5d796 100644
+--- a/conf/plugins/openssl.conf
++++ b/conf/plugins/openssl.conf
 @@ -4,7 +4,7 @@ openssl {
      # engine_id = pkcs11
  
