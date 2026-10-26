@@ -109,7 +109,6 @@ on a freeswan enabled kernel.
 %{_bindir}/pt-tls-client
 %{_bindir}/tpm_extendpcr
 %dir %{_libexecdir}/%{name}
-%{_libexecdir}/%{name}/_copyright
 %{_libexecdir}/%{name}/_imv_policy
 %{_libexecdir}/%{name}/_updown
 %{_libexecdir}/%{name}/charon
