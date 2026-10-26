@@ -84,7 +84,6 @@ on a freeswan enabled kernel.
 %config(noreplace) %{_sysconfdir}/%{name}/%{name}.d/charon-systemd.conf
 %config(noreplace) %{_sysconfdir}/%{name}/%{name}.d/imcv.conf
 %config(noreplace) %{_sysconfdir}/%{name}/%{name}.d/pki.conf
-%config(noreplace) %{_sysconfdir}/%{name}/%{name}.d/scepclient.conf
 %config(noreplace) %{_sysconfdir}/%{name}/%{name}.d/sec-updater.conf
 %config(noreplace) %{_sysconfdir}/%{name}/%{name}.d/starter.conf
 %config(noreplace) %{_sysconfdir}/%{name}/%{name}.d/swanctl.conf
@@ -117,7 +116,6 @@ on a freeswan enabled kernel.
 %{_libexecdir}/%{name}/duplicheck
 %{_libexecdir}/%{name}/imv_policy_manager
 #{_libexecdir}/%%{name}/pt-tls-client
-%{_libexecdir}/%{name}/scepclient
 %{_libexecdir}/%{name}/starter
 %{_libexecdir}/%{name}/stroke
 %{_libexecdir}/%{name}/xfrmi
@@ -134,7 +132,6 @@ on a freeswan enabled kernel.
 %{_mandir}/man5/%{name}_swanctl.conf.5.*
 %{_mandir}/man8/%{name}.8.*
 %{_mandir}/man8/%{name}_charon-cmd.8.*
-%{_mandir}/man8/%{name}_scepclient.8.*
 %{_mandir}/man8/%{name}_sec-updater.8.*
 %{_mandir}/man8/%{name}_sw-collector.8.*
 %{_mandir}/man8/%{name}_swanctl.8.*
@@ -390,6 +387,7 @@ automake --add-missing --copy
 	--enable-sha3 \
 	--enable-soup \
 	--enable-sqlite \
+	--enable-stroke \
 	--enable-swanctl \
 	--enable-systemd \
 	--enable-systime-fix \
