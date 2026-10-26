@@ -28,7 +28,7 @@ BuildRequires:	byacc
 BuildRequires:	flex
 BuildRequires:	gettext-devel
 BuildRequires:	gmp-devel >= 4.1.4
-BuildRequires:	openldap-devel
+BuildRequires:	pkgconfig(ldap)
 BuildRequires:	pam-devel
 BuildRequires:	trousers-devel
 BuildRequires:	pkgconfig(json-c)
