@@ -378,6 +378,15 @@ automake --add-missing --copy
 	--enable-ldap \
 	--enable-led \
 	--enable-md4 \
+	--enable-aes \
+	--enable-curve25519 \
+	--enable-des \
+	--enable-hmac \
+	--enable-md5 \
+	--enable-pkcs12 \
+	--enable-rc2 \
+	--enable-sha1 \
+	--enable-sha2 \
 %if %{with nm}
 	--enable-nm \
 %endif
