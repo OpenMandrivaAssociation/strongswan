@@ -93,6 +93,12 @@ on a freeswan enabled kernel.
 # We need to prevent overwriting of user's custom config
 # but there are near 90 files here...
 %config(noreplace) %{_sysconfdir}/%{name}/%{name}.d/charon/*.conf
+%config(noreplace) %{_sysconfdir}/%{name}/%{name}.d/charon-cmd.conf
+%dir %{_sysconfdir}/%{name}/%{name}.d/charon-cmd
+%config(noreplace) %{_sysconfdir}/%{name}/%{name}.d/charon-cmd/*.conf
+%config(noreplace) %{_sysconfdir}/%{name}/%{name}.d/imv_policy_manager.conf
+%config(noreplace) %{_sysconfdir}/%{name}/%{name}.d/iptfs.conf
+%config(noreplace) %{_sysconfdir}/%{name}/%{name}.d/sw-collector.conf
 %dir %{_sysconfdir}/%{name}/swanctl
 %config(noreplace) %{_sysconfdir}/%{name}/swanctl/swanctl.conf
 %{_tmpfilesdir}/%{name}.conf
@@ -227,6 +233,7 @@ Client/Server implementation possessing a standard IF-IMC/IMV interface.
 %{_libdir}/%{name}/plugins/lib%{name}-ha.so
 %{_libdir}/%{name}/plugins/lib%{name}-hmac.so
 %{_libdir}/%{name}/plugins/lib%{name}-ipseckey.so
+%{_libdir}/%{name}/plugins/lib%{name}-kdf.so
 %{_libdir}/%{name}/plugins/lib%{name}-kernel-libipsec.so
 %{_libdir}/%{name}/plugins/lib%{name}-kernel-netlink.so
 %{_libdir}/%{name}/plugins/lib%{name}-ldap.so
@@ -290,6 +297,9 @@ to NetworkManager.
 %files charon-nm
 %doc COPYING
 %{_libexecdir}/%{name}/charon-nm
+%config(noreplace) %{_sysconfdir}/%{name}/%{name}.d/charon-nm.conf
+%dir %{_sysconfdir}/%{name}/%{name}.d/charon-nm
+%config(noreplace) %{_sysconfdir}/%{name}/%{name}.d/charon-nm/*.conf
 %endif
 
 #----------------------------------------------------------------------------
