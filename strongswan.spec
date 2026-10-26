@@ -31,6 +31,9 @@ BuildRequires:	gmp-devel >= 4.1.4
 BuildRequires:	pkgconfig(ldap)
 BuildRequires:	pam-devel
 BuildRequires:	trousers-devel
+# --enable-tpm forces the TSS 2.0 stack on, even with --disable-tss-tss2.
+BuildRequires:	pkgconfig(tss2-sys)
+BuildRequires:	pkgconfig(tss2-esys)
 BuildRequires:	pkgconfig(json-c)
 BuildRequires:	pkgconfig(libcurl)
 BuildRequires:	pkgconfig(libsoup-3.0)
@@ -397,7 +400,7 @@ automake --add-missing --copy
 	--enable-tnccs-dynamic \
 	--enable-tpm \
 	--enable-tss-trousers \
-	--disable-tss-tss2 \
+	--enable-tss-tss2 \
 	--enable-unity \
 	--enable-vici \
 	--enable-xauth-eap \
