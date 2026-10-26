@@ -33,7 +33,7 @@ BuildRequires:	pam-devel
 BuildRequires:	trousers-devel
 BuildRequires:	pkgconfig(json-c)
 BuildRequires:	pkgconfig(libcurl)
-BuildRequires:	pkgconfig(libsoup-2.4)
+BuildRequires:	pkgconfig(libsoup-3.0)
 BuildRequires:	pkgconfig(libxml-2.0)
 BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(sqlite3) >= 3.3.1
