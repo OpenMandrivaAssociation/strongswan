@@ -2,6 +2,8 @@
 
 %define	major	0
 %define	libswan	%mklibname	%{name} %{major}
+# Plugins are dlopened by libstrongswan and use its symbols.
+%global _disable_ld_no_undefined 1
 
 %bcond_without	nm
 
